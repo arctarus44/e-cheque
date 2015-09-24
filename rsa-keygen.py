@@ -1,29 +1,17 @@
 import os
 import sys
 import os.path
-sys.path.append(os.path.join(os.getcwd(), '..',))
-import client as clt
-from tools import *
+
 import math
 import random
 from fractions import gcd
 
-KEY_GEN = "/RSA-keygen"
-CHALLENGE_URL = KEY_GEN + "/challenge" + NAME
-PK_URL = KEY_GEN  + "/PK" + NAME
-CONFIRM_URL = KEY_GEN + "/confirmation" + NAME
+PRIVATE = "private"
+PUBLIC  = "public"
 
-PRIMES_SECTION = "Primes"
-P_SECTION = "p"
-Q_SECTION = "q"
-
-E = 'e'
-N = 'n'
-M = 'm'
-
-CIPHER = "ciphertext"
-
-def est_premier(p):
+# todo in is_prime use Miller–Rabin primality test
+def is_prime(p):
+	"""Check if the number p is a prime number."""
 	if p == 1:
 		return False
 	if p == 2:
@@ -49,86 +37,82 @@ def est_premier(p):
 
 	return True
 
-def get_challenge():
-	"""Return the e part of the private key"""
-	print("Retreiving challenge from the server...")
-	srv = clt.Server(BASE_URL)
-	try:
-		return srv.query(CHALLENGE_URL)[E]
-	except clt.ServerError as err:
-		print_serverError_exit(err)
-
-def send_key(e, n):
-	"""Send the key to the server. And return the cipher given by the server"""
-	print("sending the key to the server...")
-	param = {N: n, E: e}
-	srv = clt.Server(BASE_URL)
-	try:
-		result = srv.query(PK_URL, param)
-		return int(result[CIPHER])
-	except clt.ServerError as err:
-		print_serverError_exit(err)
-
-def decipher(c, d, n):
-	return pow(c, d, n)
-
-def send_message(message):
-	"""Send the message to the server."""
-	param = {M : message}
-	srv = clt.Server(BASE_URL)
-	print("sending the message to the server...")
-	try:
-		result = srv.query(CONFIRM_URL, param)
-		print(result)
-	except clt.ServerError as err:
-		print_serverError_exit(err)
-
 def compute_big_prime(size=2048):
-	"""Return a big prime number"""
-	i = 1
+	"""Return a big prime number. If you want to change the size of
+	prime number, you can change the size parameter."""
 	while True:
 		prime = random.getrandbits(size)
-		if est_premier(prime):
+		if is_prime(prime):
 			return prime
-		else:
-			print("attempt no " + str(i))
-			i+=1
 
-def save_primes(p, q):
-	primes_f = open(filename, 'w')
-	primes_f.writelines("[" + PRIMES_SECTION  + "]" + "\n")
-	primes_f.writelines(P_SECTION + " = " + str(p) + "\n")
-	primes_f.writelines(Q_SECTION + " = " + str(q) + "\n")
-	primes_f.close()
+def extended_gcd(aa, bb):
+	lastremainder, remainder = abs(aa), abs(bb)
+	x, lastx, y, lasty = 0, 1, 1, 0
+	while remainder:
+		lastremainder, (quotient, remainder) = remainder, divmod(lastremainder, remainder)
+		x, lastx = lastx - quotient*x, x
+		y, lasty = lasty - quotient*y, y
+	return lastremainder, lastx * (-1 if aa < 0 else 1), lasty * (-1 if bb < 0 else 1)
 
-def read_primes():
-	import configparser as cp
-	p_key = cp.ConfigParser()
-	p_key.read("../primes.ini")
-	p = int(p_key[PRIMES_SECTION][P_SECTION])
-	q = int(p_key[PRIMES_SECTION][Q_SECTION])
-	return p, q
+def modinv(a, m):
+	g, x, y = extended_gcd(a, m)
+	if g != 1:
+		raise ValueError
+	return x % m
 
-if __name__ == "__main__":
-	p = q = e = n = d = None
-	if not os.path.exists("../primes.ini"):
-		print("Computing big number...")
-		p = compute_big_prime();
-		q = compute_big_prime();
-		save_primes(p, q)
-	else:
-		print("Reading primes numbers from file...")
-		p, q = read_primes()
-	e = get_challenge()
-	n = p*q
-	d = modinv(e, (p-1)*(q-1))
 
-	if gcd((p - 1)*(q - 1), e) == 1:
-		print("p and q are correct!\n:-)")
-	else:
-		print("p and q are not correct!\n:-(")
-		exit(1)
+class RSA:
+	"""Implement the RSA cryptosystem."""
 
-	cipher = send_key(e, n)
-	message = decipher(cipher, d, n)
-	send_message(message)
+	@staticmethod
+	def save_key(private, public, user, dir):
+		"""Save the public and private key under two files in a directory
+		specified by dir. The two files created are named according to the
+		following example. If the user are bar and the directory are foo,
+		two files ./foo/bar.pub and ../foo/bar will be created. They store
+		respectively the public and the private key."""
+		if private != None:
+			pass
+		if public != None:
+			pass
+
+	@staticmethod
+	def read_key(user, dir, instanciate=True):
+		"""Read the the public key of an user in a directory. If instanciate
+		is set to true (the default behaviour), this method will return
+		an instance of RSA."""
+		pass
+
+	@staticmethod
+	def generate_keys():
+		"""Generate the public and private keys to use with RSA."""
+		p = compute_big_prime(size = 1024)
+		q = compute_big_prime(size = 1024)
+		n = p * q
+		phi_n = p - 1 * q - 1
+
+		e = random.randrange(1, phi_n)
+		while gcd(e, phi_n) != 1:
+			e = random.randrange(1, phi_n)
+
+		d = modinv(e, phi_n)
+		{PRIVATE:{},
+		 PUBLIC:{}}
+
+
+	def __init__(self, n, d, e):
+		self.__n = n
+		self.__d = d
+		self.__e = e
+
+	def decryption(c, d, n):
+		return pow(c, d, n)
+
+	def encryption(m):
+		pass
+
+	def sign(m):
+		pass
+
+	def check_signature(s):
+		pass
