@@ -77,11 +77,14 @@ class RSA:
 			pass
 
 	@staticmethod
-	def read_key(user, dir, instanciate=True):
+	def read_keys(user, dir, instanciate=True):
 		"""Read the the public key of an user in a directory. If instanciate
 		is set to true (the default behaviour), this method will return
 		an instance of RSA."""
-		pass
+		if instanciate:
+			pass
+		return {PRIVATE:{},
+		 PUBLIC:{}}
 
 	@staticmethod
 	def generate_keys():
@@ -105,14 +108,14 @@ class RSA:
 		self.__d = d
 		self.__e = e
 
-	def decryption(c, d, n):
-		return pow(c, d, n)
+	def decryption(self, c):
+		return pow(c, self.__d, self.__n)
 
-	def encryption(m):
+	def encryption(self, m):
+		return pow(m, self.__e, self.__n)
+
+	def sign(self, m):
 		pass
 
-	def sign(m):
-		pass
-
-	def check_signature(s):
+	def check_signature(self, s):
 		pass
