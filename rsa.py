@@ -64,6 +64,13 @@ def modinv(a, m):
 class RSA:
 	"""Implement the RSA cryptosystem."""
 
+	modulus = "N"
+	public_exponent = "E"
+	private_exponent = "D"
+	private = "PRIVATE"
+	public = "PUBLIC"
+
+
 	@staticmethod
 	def save_key(private, public, user, dir):
 		"""Save the public and private key under two files in a directory
@@ -83,8 +90,8 @@ class RSA:
 		an instance of RSA."""
 		if instanciate:
 			pass
-		return {PRIVATE:{},
-		 PUBLIC:{}}
+		return {RSA.private:{},
+		RSA.public:{}}
 
 	@staticmethod
 	def generate_keys():
@@ -99,8 +106,8 @@ class RSA:
 			e = random.randrange(1, phi_n)
 
 		d = modinv(e, phi_n)
-		{PRIVATE:{},
-		 PUBLIC:{}}
+		private_k = {}
+		public_k = {RSA.public_exponent}
 
 
 	def __init__(self, n, d, e):
@@ -115,7 +122,10 @@ class RSA:
 		return pow(m, self.__e, self.__n)
 
 	def sign(self, m):
-		pass
+		return pow(m, self.__d, self__n)
 
 	def check_signature(self, s):
-		pass
+		"""This method do not realy chek if the signature is rigth. This method
+		cannot check if the result is right or not. It return the content
+		decoded from the signature."""
+		return pow(s, self.__e, self.__n)
