@@ -10,8 +10,7 @@ def genFacture(nom,montant,ordre):
 
 	config = configparser.RawConfigParser()
 	random.seed(os.urandom(SEED_LENGTH))
-	random.getrandbits(TRANSACTION_ID_LENGTH)
-	config['CLIENT'] = {'Nom' : nom, 'Montant' : montant, 'Ordre' : ordre}
+	config['CLIENT'] = {'Nom' : nom, 'Montant' : montant, 'Ordre' : ordre, 'Transaction' : random.getrandbits(TRANSACTION_ID_LENGTH)}
 	with open('facture.ini','w') as facture:
 		config.write(facture)
 
