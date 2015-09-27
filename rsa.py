@@ -6,9 +6,6 @@ import math
 import random
 from fractions import gcd
 
-PRIVATE = "private"
-PUBLIC  = "public"
-
 # todo in is_prime use Miller–Rabin primality test
 def is_prime(p):
 	"""Check if the number p is a prime number."""
@@ -70,19 +67,6 @@ class RSA:
 	private = "PRIVATE"
 	public = "PUBLIC"
 
-
-	@staticmethod
-	def save_key(private, public, user, dir):
-		"""Save the public and private key under two files in a directory
-		specified by dir. The two files created are named according to the
-		following example. If the user are bar and the directory are foo,
-		two files ./foo/bar.pub and ../foo/bar will be created. They store
-		respectively the public and the private key."""
-		if private != None:
-			pass
-		if public != None:
-			pass
-
 	@staticmethod
 	def read_keys(user, dir, instanciate=True):
 		"""Read the the public key of an user in a directory. If instanciate
@@ -106,8 +90,33 @@ class RSA:
 			e = random.randrange(1, phi_n)
 
 		d = modinv(e, phi_n)
-		private_k = {}
-		public_k = {RSA.public_exponent}
+		private_dict = {RSA.private_exponent: d, RSA.modulus: n}
+		public_dict = {RSA.public_exponent: e, RSA.modulus: n}
+		return {RSA.private: private_dict, RSA.public: public_dict}
+
+	@staticmethod
+	def store_key(directory, private_dict=None, public_dict=None):
+		"""Store the private and/or the public key store as a dict into files
+		in the given directory.
+		The public key will be store under the file public.key and the private
+		key will be store under the file private key."""
+
+		from configparser import ConfigParser
+
+		private_file = "private.key"
+		public_file = "public.key"
+
+		if private_dict is not None:
+			private_k = ConfigParser()
+			private_k["key"] = private_dict
+			with open(os.path.join(directory, private_file), 'w') as keyfile:
+				private_k.write(keyfile)
+
+		if public_dict is not None:
+			public_k = ConfigParser()
+			public_k["key"] = public_dict
+			with open(os.path.join(directory, public_file), 'w') as keyfile:
+				public_k.write(keyfile)
 
 
 	def __init__(self, n, d, e):
