@@ -127,7 +127,7 @@ class RSA:
 				public_k.write(keyfile)
 
 
-	def __init__(self, n, d, e):
+	def __init__(self, n, d=None, e=None):
 		self.__n = n
 		self.__d = d
 		self.__e = e
