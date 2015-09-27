@@ -118,7 +118,7 @@ class RSA:
 		p = compute_big_prime(size = key_size)
 		q = compute_big_prime(size = key_size)
 		n = p * q
-		phi_n = p - 1 * q - 1
+		phi_n = (p - 1) * (q - 1)
 
 		e = random.randrange(1, phi_n)
 		while gcd(e, phi_n) != 1:
