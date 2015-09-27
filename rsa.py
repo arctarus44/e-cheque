@@ -6,33 +6,6 @@ import math
 import random
 from fractions import gcd
 
-# todo in is_prime use Miller–Rabin primality test
-# def is_prime(p):
-# 	"""Check if the number p is a prime number."""
-	# if p == 1:
-	# 	return False
-	# if p == 2:
-	# 	return True
-	# if p % 2 == 0:
-	# 	return False
-	# if p % 10 == 5:
-	# 	return False
-
-	# p_str = str(p)
-	# sum_digits = 0
-	# for digit_str in p_str:
-	# 	sum_digits += int(digit_str)
-	# if sum_digits % 3 == 0:
-	# 	return False
-
-	# sqr = math.sqrt(p)
-	# cpt = 3
-	# while(cpt <= sqr):
-	# 	if(p % cpt == 0):
-	# 		return False
-	# 	cpt += 2
-
-	# return True
 
 def is_prime(n, accuracy=10):
 	"""Check if the number p is a prime number. Rabin-Miller edition.
