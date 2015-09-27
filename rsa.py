@@ -5,6 +5,7 @@ import os.path
 import math
 import random
 from fractions import gcd
+from configparser import ConfigParser
 
 
 def is_prime(n, accuracy=10):
@@ -76,14 +77,22 @@ class RSA:
 	public = "PUBLIC"
 
 	@staticmethod
-	def read_keys(user, dir, instanciate=True):
-		"""Read the the public key of an user in a directory. If instanciate
-		is set to true (the default behaviour), this method will return
-		an instance of RSA."""
-		if instanciate:
-			pass
-		return {RSA.private:{},
-		RSA.public:{}}
+	def read_key(file, instanciate=True):
+		"""Read the key. If instanciate is set to true
+		(the default behaviour), this method will return an instance of RSA."""
+		key_file = ConfigParser()
+		key_file.read(file)
+		key= {RSA.modulus: int(key_file["key"]["n"])}
+		if key_file.has_option("key", "e"): # the key is a public key
+			key[RSA.public_exponent] = int(key_file["key"]["e"])
+			if instanciate:
+				return RSA(key[RSA.modulus], e=key[RSA.public_exponent])
+
+		else:					# the key is a private key
+			key[RSA.private_exponent] = int(key_file["key"]["d"])
+			if instanciate:
+				return RSA(key[RSA.modulus], d=key[RSA.private_exponent])
+		return key
 
 	@staticmethod
 	def generate_keys(key_size=1024):
@@ -139,7 +148,7 @@ class RSA:
 		return pow(m, self.__e, self.__n)
 
 	def sign(self, m):
-		return pow(m, self.__d, self__n)
+		return pow(m, self.__d, self.__n)
 
 	def check_signature(self, s):
 		"""This method do not realy chek if the signature is rigth. This method
