@@ -7,31 +7,66 @@ import random
 from fractions import gcd
 
 # todo in is_prime use Miller–Rabin primality test
-def is_prime(p):
-	"""Check if the number p is a prime number."""
-	if p == 1:
+# def is_prime(p):
+# 	"""Check if the number p is a prime number."""
+	# if p == 1:
+	# 	return False
+	# if p == 2:
+	# 	return True
+	# if p % 2 == 0:
+	# 	return False
+	# if p % 10 == 5:
+	# 	return False
+
+	# p_str = str(p)
+	# sum_digits = 0
+	# for digit_str in p_str:
+	# 	sum_digits += int(digit_str)
+	# if sum_digits % 3 == 0:
+	# 	return False
+
+	# sqr = math.sqrt(p)
+	# cpt = 3
+	# while(cpt <= sqr):
+	# 	if(p % cpt == 0):
+	# 		return False
+	# 	cpt += 2
+
+	# return True
+
+def is_prime(n, accuracy=10):
+	"""Check if the number p is a prime number. Rabin-Miller edition.
+	If you are 'bit' paranoid, you can use a bigger integer for accuracy.
+	I choose accuracy = 10, because I think 1/4^10 is strong enough. But
+	I am not a cryptography expert nor a mathematician, so do not yell at
+	me!"""
+	if n <= 2:
 		return False
-	if p == 2:
+	if n == 2:
 		return True
-	if p % 2 == 0:
-		return False
-	if p % 10 == 5:
+	if n % 2 == 0:
 		return False
 
-	p_str = str(p)
-	sum_digits = 0
-	for digit_str in p_str:
-		sum_digits += int(digit_str)
-	if sum_digits % 3 == 0:
-		return False
+	s = 0
+	d = n-1
 
-	sqr = math.sqrt(p)
-	cpt = 3
-	while(cpt <= sqr):
-		if(p % cpt == 0):
-			return False
-		cpt += 2
+	while d % 2 == 0:
+		s += 1
+		d = d >> 1
 
+	for i in range(0, accuracy):
+		a = random.randint(2, n - 1)
+		x = pow(a, d, n)
+		if x != 1 and x != n - 1:
+			for i in range(1, s):
+				x = pow(x, 2, n)
+				if x == 1:
+					return False
+				elif x == n - 1:
+					a = 0
+					break
+			if a:
+				return False
 	return True
 
 def compute_big_prime(size=2048):
@@ -78,10 +113,10 @@ class RSA:
 		RSA.public:{}}
 
 	@staticmethod
-	def generate_keys():
+	def generate_keys(key_size=1024):
 		"""Generate the public and private keys to use with RSA."""
-		p = compute_big_prime(size = 1024)
-		q = compute_big_prime(size = 1024)
+		p = compute_big_prime(size = key_size)
+		q = compute_big_prime(size = key_size)
 		n = p * q
 		phi_n = p - 1 * q - 1
 
