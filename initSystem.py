@@ -3,8 +3,25 @@ import os
 import os.path
 import sys
 import shutil
+from configparser import  ConfigParser
+from tools import *
 
 DONE = "\033[1m\033[32mDone\033[0m"
+
+def sign_customer_key(rsa, customer):
+	"""Sign the public key of the customer with the rsa private key of
+	the bank and put the result in a configuration file like this one
+	[Bank]
+	signature=232345478290189289289082907892017892789
+	"""
+	filename = "public.sign"
+	customer_key = open(os.path.join("bank", customer, "public.key"), 'r')
+	key_content = customer_key.read()
+	signature = rsa.sign(text_to_int(key_content))
+	signature_file = ConfigParser()
+	signature_file["Bank"] = {"signature": signature}
+	with open(os.path.join("customers", customer, filename), 'w') as signfile:
+		signature_file.write(signfile)
 
 
 if __name__ == "__main__":
@@ -46,8 +63,8 @@ if __name__ == "__main__":
 		os.mkdir(customer_bank)
 		shutil.copy(os.path.join(directory, "public.key"), customer_bank)
 
-		# todo : Signing the customer's key with the bank private key
-
+		# Signing the customer's key with the bank private key
+		sign_customer_key(rsa_bank, customer)
 		print(DONE)
 
 	#Creating the seller
