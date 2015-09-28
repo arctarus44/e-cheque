@@ -6,11 +6,11 @@ import random
 SEED_LENGTH = 10
 TRANSACTION_ID_LENGTH = 1024
 
-def genFacture(nom,montant,ordre):
+def genFacture(name,price,to):
 
 	config = configparser.RawConfigParser()
 	random.seed(os.urandom(SEED_LENGTH))
-	config['CLIENT'] = {'Nom' : nom, 'Montant' : montant, 'Ordre' : ordre, 'Transaction' : random.getrandbits(TRANSACTION_ID_LENGTH)}
+	config['CLIENT'] = {'Name' : name, 'Price' : price, 'To' : to, 'Transaction' : random.getrandbits(TRANSACTION_ID_LENGTH)}
 	with open('facture.ini','w') as facture:
 		config.write(facture)
 
