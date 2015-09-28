@@ -36,6 +36,6 @@ if __name__ == "__main__":
 	cheque = ConfigParser()
 	cheque.add_section("cheque")
 	cheque.set("cheque", "depositor", user_name)
-	cheque.set("cheque", "beneficiary", bill.get("CLIENT", "ordre"))
-	cheque.set("cheque", "amount", bill.get("CLIENT", "montant"))
+	cheque.set("cheque", "beneficiary", bill.get("CLIENT", "To"))
+	cheque.set("cheque", "amount", bill.get("CLIENT", "Amount"))
 	cheque.set("cheque", "transaction_id", bill.get("CLIENT", "transaction"))
