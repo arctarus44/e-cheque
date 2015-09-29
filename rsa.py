@@ -12,8 +12,7 @@ def is_prime(n, accuracy=10):
 	"""Check if the number p is a prime number. Rabin-Miller edition.
 	If you are 'bit' paranoid, you can use a bigger integer for accuracy.
 	I choose accuracy = 10, because I think 1/4^10 is strong enough. But
-	I am not a cryptography expert nor a mathematician, so do not yell at
-	me!"""
+	I am not a cryptography expert nor a mathematician."""
 	if n <= 2:
 		return False
 	if n == 2:
@@ -140,6 +139,15 @@ class RSA:
 		self.__n = n
 		self.__d = d
 		self.__e = e
+
+	def e(self):
+		return self.__e
+
+	def d(self):
+		return self.__d
+
+	def n(self):
+		return self.__n
 
 	def decryption(self, c):
 		return pow(c, self.__d, self.__n)
