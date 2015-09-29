@@ -4,7 +4,7 @@ import os
 import random
 
 SEED_LENGTH = 10
-TRANSACTION_ID_LENGTH = 1024
+TRANSACTION_ID_LENGTH = 256
 
 def genFacture(name,price,to):
 

@@ -8,7 +8,7 @@ from fractions import gcd
 from configparser import ConfigParser
 
 
-def is_prime(n, accuracy=10):
+def is_prime(n, accuracy=2):
 	"""Check if the number p is a prime number. Rabin-Miller edition.
 	If you are 'bit' paranoid, you can use a bigger integer for accuracy.
 	I choose accuracy = 10, because I think 1/4^10 is strong enough. But
@@ -96,8 +96,8 @@ class RSA:
 	@staticmethod
 	def generate_keys(key_size=1024):
 		"""Generate the public and private keys to use with RSA."""
-		p = compute_big_prime(size = key_size)
-		q = compute_big_prime(size = key_size)
+		p = compute_big_prime(size=key_size)
+		q = compute_big_prime(size=key_size)
 		n = p * q
 		phi_n = (p - 1) * (q - 1)
 
