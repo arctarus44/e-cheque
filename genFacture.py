@@ -34,6 +34,19 @@ def genFacture(name,amount,to):
 	print(fr)
 	facture.close()
 	
-
+	data = configparser.ConfigParser()
+	data.read('seller/database')
+	new_list = data["Bill"]["not_pay_in"].split(',')
+	new_list.append(id_transac)
+	new_str = ""
+	for elt in new_list:
+		new_str += elt +","
+		
+	data.set("Bill", "not_pay_in", new_str)
+	with open('seller/database','w') as database:
+		data.write(database)		
+		database.close()
+	
 if __name__ == "__main__":
 	genFacture(sys.argv[1],sys.argv[2],sys.argv[3])
+	
