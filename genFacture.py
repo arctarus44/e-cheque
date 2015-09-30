@@ -15,7 +15,6 @@ def genFacture(name,amount,to):
 	
 	dt = datetime.now()
 	dn = str(dt.year) + str(dt.month) + str(dt.day) + str(dt.hour) + str(dt.minute) + str(dt.second) + str(dt.microsecond)
-	print (dn)
 	id_transac = hex(random.getrandbits(TRANSACTION_ID_LENGTH))[2:]
 
 	config['CLIENT'] = {'Name' : name, 'Amount' : amount, 'To' : to, 'Transaction' : id_transac}
@@ -24,8 +23,9 @@ def genFacture(name,amount,to):
 		facture.close()
 	
 	os.path.join("seller",'facture_'+id_transac+'_'+dn+'.ini')
-	open('seller/facture_'+id_transac+'_'+dn+'.ini','r')
-	print(facture)
+	facture = open('seller/facture_'+id_transac+'_'+dn+'.ini','r')
+	fr = facture.read()
+	print(fr)
 	facture.close()
 	
 
