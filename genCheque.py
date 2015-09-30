@@ -2,7 +2,6 @@ import sys
 import os
 from rsa import RSA
 from configparser import ConfigParser
-<<<<<<< HEAD
 from shutil import copyfile
 
 def read_bill():
