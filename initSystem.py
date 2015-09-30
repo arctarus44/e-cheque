@@ -107,6 +107,7 @@ if __name__ == "__main__":
 		bank_database.write(database_file)
 
 	seller_database = ConfigParser()
-	seller_database["Bill"] = {"pay_in": "", "not_pay_in": ""}
+	seller_database["pay_in"] = {}
+	seller_database["not_pay_in"] = {}
 	with open(os.path.join("seller", 'database'), 'w') as database_file:
 		seller_database.write(database_file)
