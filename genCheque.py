@@ -1,13 +1,19 @@
 import sys
+import os
 from rsa import RSA
 from configparser import ConfigParser
+from shutil import copyfile
 
-user_name = sys.argv[1]
 def read_bill():
 	"""Read a check from stdin and return an instance of ConfigParser."""
-	f = sys.stdin.readlines()
+	filename = "tmp.txt"
+	tmp_file = open(filename, 'w')
+	for line in sys.stdin.readlines():
+		tmp_file.write(line)
+	tmp_file.close()
 	bill = ConfigParser()
-	bill.read_file(f)
+	bill.read(filename)
+	os.remove("tmp.txt")
 	return bill
 
 if __name__ == "__main__":
@@ -29,20 +35,22 @@ if __name__ == "__main__":
 		print("Missing option transaction in the client section", file=sys.stderr)
 		exit(1)
 
-	if bill.get("CLIENT", "Name") != user_name:
+	customer_name = bill["CLIENT"]["name"]
+
+	if bill.get("CLIENT", "Name") != customer_name:
 		print("This cheque is not for me !", sys.stderr)
 		exit(1)
 
 	cheque = ConfigParser()
 	cheque.add_section("cheque")
-	cheque.set("cheque", "depositor", user_name)
+	cheque.set("cheque", "depositor", customer_name)
 	cheque.set("cheque", "beneficiary", bill.get("CLIENT", "To"))
 	cheque.set("cheque", "amount", bill.get("CLIENT", "Amount"))
 	cheque.set("cheque", "transaction_id", bill.get("CLIENT", "Transaction"))
-	with open('customers/'+user_name+'/cheque.ini','w') as cheque:
-		config.write(cheque)
-		cheque.close()
-#	os.rename('customers/'+user_name+'/cheque.ini', 'seller/cheque.ini')
-
-	os.path.join("customers",user_name,'cheque.ini')
-
+	cheque_fname = 'customers/' + customer_name + '/writed/cheque_' + bill["CLIENT"]["To"]+ "_" + bill["CLIENT"]["Transaction"] + '.ini'
+	with open(cheque_fname,'w') as cheque_file:
+		cheque.write(cheque_file)
+	copyfile(cheque_fname, 'seller/cheque.ini')
+	tmp = open(cheque_fname, 'r')
+	print(tmp.read())
+	exit(0)
