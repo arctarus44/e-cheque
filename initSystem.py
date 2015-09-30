@@ -52,6 +52,7 @@ if __name__ == "__main__":
 	os.mkdir("bank")
 	keys = RSA.generate_keys()#key_size=4096)
 	RSA.store_key("bank", keys[RSA.private], keys[RSA.public])
+
 	print(DONE)
 
 	rsa_bank = RSA(keys[RSA.private][RSA.modulus],
@@ -59,9 +60,11 @@ if __name__ == "__main__":
 
 	# Creating customer
 	os.mkdir("customers")
+	customers_list = []
 	for i in range(0, nb_customers):
 		try:
 			customer = sys.argv[2+i]
+			customers_list.append(customer)
 		except IndexError:
 			print("Missing customer name", sys.stderr)
 
@@ -80,6 +83,9 @@ if __name__ == "__main__":
 
 		# Signing the customer's key with the bank private key
 		sign_customer_key(rsa_bank, customer)
+
+		directory = os.path.join(directory, "writed")
+		os.mkdir(directory)
 		print(DONE)
 
 	#Creating the seller
@@ -92,3 +98,15 @@ if __name__ == "__main__":
 	shutil.copy(os.path.join("seller", "public.key"), os.path.join("bank", "seller", "public.key"))
 	sign_seller_key(rsa_bank)
 	print(DONE)
+
+	bank_database = ConfigParser()
+	bank_database.add_section("history")
+	for customer in customers_list:
+		bank_database.set("history", customer, "")
+	with open(os.path.join("bank", "database"), 'w') as database_file:
+		bank_database.write(database_file)
+
+	seller_database = ConfigParser()
+	seller_database["Bill"] = {"pay_in": "", "not_pay_in": ""}
+	with open(os.path.join("seller", 'database'), 'w') as database_file:
+		seller_database.write(database_file)
