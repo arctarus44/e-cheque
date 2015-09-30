@@ -3,6 +3,7 @@ import sys
 import os
 import random
 from datetime import datetime, date, time
+from shutil import copyfile
 
 SEED_LENGTH = 10
 
@@ -18,11 +19,16 @@ def genFacture(name,amount,to):
 	id_transac = hex(random.getrandbits(TRANSACTION_ID_LENGTH))[2:]
 
 	config['CLIENT'] = {'Name' : name, 'Amount' : amount, 'To' : to, 'Transaction' : id_transac}
+	name = config['CLIENT']['Name']
+	
 	with open('seller/facture_'+id_transac+'_'+dn+'.ini','w') as facture:
-		config.write(facture)
+		config.write(facture)		
 		facture.close()
 	
 	os.path.join("seller",'facture_'+id_transac+'_'+dn+'.ini')
+	
+	copyfile('seller/facture_'+id_transac+'_'+dn+'.ini','customers/'+name+'/facture_'+id_transac+'_'+dn+'.ini')
+	
 	facture = open('seller/facture_'+id_transac+'_'+dn+'.ini','r')
 	fr = facture.read()
 	print(fr)
