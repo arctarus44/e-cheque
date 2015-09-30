@@ -14,17 +14,17 @@ def genFacture(name,amount,to):
 	random.seed(os.urandom(SEED_LENGTH))
 	
 	dt = datetime.now()
-	dn = dt.year+dt.month+dt.day+dt.hour+dt.minute+dt.second+dt.microsecond
-
+	dn = str(dt.year) + str(dt.month) + str(dt.day) + str(dt.hour) + str(dt.minute) + str(dt.second) + str(dt.microsecond)
+	print (dn)
 	id_transac = hex(random.getrandbits(TRANSACTION_ID_LENGTH))[2:]
 
 	config['CLIENT'] = {'Name' : name, 'Amount' : amount, 'To' : to, 'Transaction' : id_transac}
 	with open('seller/facture_'+id_transac+'_'+dn+'.ini','w') as facture:
 		config.write(facture)
 		facture.close()
-	#os.rename('seller/facture_'+id_transac+'_'+dn+'.ini','customers/'+name+'/facture_'+id_transac+'_'+dn+'.ini')
+	
 	os.path.join("seller",'facture_'+id_transac+'_'+dn+'.ini')
-	facture.open()
+	open('seller/facture_'+id_transac+'_'+dn+'.ini','r')
 	print(facture)
 	facture.close()
 	
