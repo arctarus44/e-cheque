@@ -8,7 +8,7 @@ from fractions import gcd
 from configparser import ConfigParser
 
 
-def is_prime(n, accuracy=2):
+def is_prime(n, accuracy=10):
 	"""Check if the number p is a prime number. Rabin-Miller edition.
 	If you are 'bit' paranoid, you can use a bigger integer for accuracy.
 	I choose accuracy = 10, because I think 1/4^10 is strong enough. But
