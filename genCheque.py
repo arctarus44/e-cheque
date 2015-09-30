@@ -1,14 +1,13 @@
 import sys
 from rsa import RSA
 from configparser import ConfigParser
-from
+
 user_name = sys.argv[1]
 def read_bill():
 	"""Read a check from stdin and return an instance of ConfigParser."""
-#	f = sys.stdin.readlines()
-#os.path.join
+	f = sys.stdin.readlines()
 	bill = ConfigParser()
-	bill.read_file('/customers/'+user_name+'/facture.ini')
+	bill.read_file(f)
 	return bill
 
 if __name__ == "__main__":
@@ -43,5 +42,7 @@ if __name__ == "__main__":
 	with open('customers/'+user_name+'/cheque.ini','w') as cheque:
 		config.write(cheque)
 		cheque.close()
-	os.rename('customers/'+user_name+'/cheque.ini', 'seller/cheque.ini')	
+#	os.rename('customers/'+user_name+'/cheque.ini', 'seller/cheque.ini')
+
+	os.path.join("customers",user_name,'cheque.ini')
 
