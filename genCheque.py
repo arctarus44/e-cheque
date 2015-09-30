@@ -39,4 +39,4 @@ if __name__ == "__main__":
 	cheque.set("cheque", "beneficiary", bill.get("CLIENT", "To"))
 	cheque.set("cheque", "amount", bill.get("CLIENT", "Amount"))
 	cheque.set("cheque", "transaction_id", bill.get("CLIENT", "Transaction"))
-	#ajout 
+	#add public key here ?
