@@ -15,6 +15,6 @@ def genFacture(name,amount,to):
 		config.write(facture)
 		facture.close()
 	os.rename('seller/facture.ini','customers/'+name+'/facture.ini')
-	
+
 if __name__ == "__main__":
 	genFacture(sys.argv[1],sys.argv[2],sys.argv[3])

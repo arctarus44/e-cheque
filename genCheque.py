@@ -43,5 +43,5 @@ if __name__ == "__main__":
 	with open('customers/'+user_name+'/cheque.ini','w') as cheque:
 		config.write(cheque)
 		cheque.close()
-	os.rename('customers/'+user_name+'/cheque.ini', 'seller/cheque.ini')	
+	os.rename('customers/'+user_name+'/cheque.ini', 'seller/cheque.ini')
 	exit(0)
