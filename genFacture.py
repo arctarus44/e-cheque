@@ -4,7 +4,7 @@ import os
 import random
 
 SEED_LENGTH = 10
-TRANSACTION_ID_LENGTH = 1024
+TRANSACTION_ID_LENGTH = 256
 
 def genFacture(name,amount,to):
 
@@ -16,6 +16,6 @@ def genFacture(name,amount,to):
 		config.write(facture)
 		facture.close()
 	os.rename('seller/facture_'+id_transac+'.ini','customers/'+name+'/facture_'+id_transac+'.ini')
-	
+
 if __name__ == "__main__":
 	genFacture(sys.argv[1],sys.argv[2],sys.argv[3])
