@@ -1,7 +1,7 @@
 import sys
 from rsa import RSA
 from configparser import ConfigParser
-
+from
 user_name = sys.argv[1]
 def read_bill():
 	"""Read a check from stdin and return an instance of ConfigParser."""
@@ -44,4 +44,4 @@ if __name__ == "__main__":
 		config.write(cheque)
 		cheque.close()
 	os.rename('customers/'+user_name+'/cheque.ini', 'seller/cheque.ini')	
-	exit(0)
+
