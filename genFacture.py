@@ -23,7 +23,11 @@ def genFacture(name,amount,to):
 	with open('seller/facture_'+id_transac+'_'+dn+'.ini','w') as facture:
 		config.write(facture)
 		facture.close()
-	os.rename('seller/facture_'+id_transac+'_'+dn+'.ini','customers/'+name+'/facture_'+id_transac+'_'+dn+'.ini')
+	#os.rename('seller/facture_'+id_transac+'_'+dn+'.ini','customers/'+name+'/facture_'+id_transac+'_'+dn+'.ini')
+	os.path.join("seller",'facture_'+id_transac+'_'+dn+'.ini')
+	facture.open()
+	sys.stdout(facture)
+	facture.close()
 	
 if __name__ == "__main__":
 	genFacture(sys.argv[1],sys.argv[2],sys.argv[3])
