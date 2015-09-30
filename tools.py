@@ -1,4 +1,44 @@
 import binascii
+import sys
+
+#######################################################
+# Every name of section and option must be write here #
+#######################################################
+## Cheque file
+# Client Section
+SCT_C_CLIENT = "Client"
+OPT_C_NAME = "Name"
+OPT_C_AMOUNT = "Amount"
+OPT_C_PAYEE = "Payee"
+OPT_C_TRANS_ID = "Transaction_id"
+
+# Key file
+SCT_K_KEY = "Key"
+OPT_K_E = "E"
+OPT_K_N = "D"
+OPT_K_D = "N"
+
+# Invoice
+SCT_I_INVOICE = "Invoice"
+OPT_I_TOTAL = "Total"
+OPT_I_SELLER = "Seller"
+OPT_I_TRANS_ID = "Transaction_id"
+OPT_I_BUYER = "Buyer"
+
+# Seller database
+SCT_SD_PAY = "Pay_in"
+SCT_SD_NOT_PAY = "Not_pay_in"
+
+#############################################
+# Every parts of path name must be put here #
+#############################################
+DIR_BANK = "bank"
+DIR_CUSTOMERS = "customers"
+DIR_CHQ_ISSUED = "issued"
+DIR_SELLER = "seller"
+FILE_PUB_KEY = "public.key"
+FILE_PRI_KEY = "private.key"
+
 
 def text_to_int(text):
 	"""Convert the ascii text given as string to an integer"""
@@ -11,3 +51,24 @@ def int_to_text(integer):
 	if len(hex_repr) % 2 != 0:
 		hex_repr = "0" + hex_repr
 	return binascii.unhexlify(hex_repr).decode("ascii")
+
+def check_config(config, structure):
+	"""Check if the ConfigParser instance respect the structure required."""
+
+	MISSING_SCT = "Missing section {0}."
+	MISSING_OPT = "Missing option {0} in section {1}."
+
+	for sect_name in structure.keys():
+		section = structure[sect_name]
+		try:
+			conf_section = config[sect_name]
+		except KeyError:
+			print(MISSING_SCT.format(sect_name), file=sys.stderr)
+			return False
+		for option in section:
+			try:
+				conf_section[option]
+			except KeyError:
+				print(MISSING_OPT.format(option, sect_name), file=sys.stderr)
+				return False
+	return True
