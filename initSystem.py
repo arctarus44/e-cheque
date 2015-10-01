@@ -94,6 +94,7 @@ if __name__ == "__main__":
 	RSA.store_key(tools.DIR_SELLER, keys[RSA.private], keys[RSA.public])
 
 	os.mkdir(os.path.join(tools.DIR_BANK, tools.DIR_SELLER))
+	os.mkdir(os.path.join(tools.DIR_SELLER, tools.DIR_INVOICE))
 	seller_pub_k = os.path.join(tools.DIR_SELLER, tools.FILE_PUB_KEY)
 	dest = os.path.join(tools.DIR_BANK, tools.DIR_SELLER)
 	shutil.copy(seller_pub_k, dest)
