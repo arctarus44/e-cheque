@@ -8,9 +8,9 @@ ROLE_SELLER = "Seller"
 # Every name of section and option must be write here #
 #######################################################
 # Cheque file
-SCT_C_CLIENT = "Client"
-OPT_C_NAME = "Drawer"
-OPT_C_AMOUNT = "Amount"
+SCT_C_CHEQUE = "Cheque"
+OPT_C_DRAWER = "Drawer"
+OPT_C_TOTAL = "Total"
 OPT_C_PAYEE = "Payee"
 OPT_C_TRANS_ID = "Transaction_id"
 
@@ -49,8 +49,15 @@ FILE_PUB_SIGN = "public.sign"
 FILE_SELLER_DB = "seller.db"
 FILE_BANK_DB = "bank.db"
 EXT_INVOICE = ".inv"
+EXT_CHEQUE = ".chq"
 
-
+#################################################################
+# Every structure of files open with ConfigParser must put here #
+#################################################################
+STRCT_INVOICE = {SCT_I_INVOICE: [OPT_I_TOTAL,
+								 OPT_I_SELLER,
+								 OPT_I_TRANS_ID,
+								 OPT_I_BUYER]}
 
 def text_to_int(text):
 	"""Convert the ascii text given as string to an integer"""

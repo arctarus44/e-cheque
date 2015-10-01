@@ -10,12 +10,14 @@ SEED_LENGTH = 10
 
 TRANSACTION_ID_LENGTH = 256
 
+# adding sign of the invoice  and the public key of the seller sign by the Bank
+# to validate the invoice
+
 def add_invoice_db(transac_id, total):
 	"""Add the invoice in the seller database."""
 
 	db_cp = ConfigParser()
 	db_fname = os.path.join(tools.DIR_SELLER, tools.FILE_SELLER_DB)
-	print(db_fname)
 	db_cp.read(db_fname)
 	db_cp.set(tools.SCT_SD_NOT_PAY, transac_id, str(total))
 
@@ -47,8 +49,8 @@ def gen_invoice(buyer, seller, total):
 		invoice_cp.write(invoice_file)
 
 	invoice = open(invoice_fname, 'r')
-	invoice_content = facture.read()
-	facture.close()
+	invoice_content = invoice.read()
+	invoice.close()
 	print(invoice_content)
 
 def parse_argt():
