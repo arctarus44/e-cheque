@@ -8,35 +8,22 @@ import tools
 
 DONE = "\033[1m\033[32mDone\033[0m"
 
-def sign_customer_key(rsa, customer):
-	"""Sign the public key of the customer with the rsa private key of
-	the bank and put the result in a configuration file like this one
-	[Bank]
-	signature=232345478290189289289082907892017892789
-	"""
-	filename = "public.sign"
-	customer_key = open(os.path.join("bank", customer, "public.key"), 'r')
-	key_content = customer_key.read()[:-1]
-	signature = rsa.sign(text_to_int(key_content))
-	signature_file = ConfigParser()
-	signature_file["Bank"] = {"signature": signature}
-	with open(os.path.join("customers", customer, filename), 'w') as signfile:
-		signature_file.write(signfile)
+def sign_key(rsa, key, dest):
+	"""Sign the key with the instance of RSA public key and store the result
+	in the dest directory"""
+	if os.path.isdir(dest) is False:
+		raise NotADirectoryError()
+	if os.path.isfile(key) is False:
+		raise IsADirectoryError()
 
-def sign_seller_key(rsa):
-	"""Sign the public key of the customer with the rsa private key of
-	the bank and put the result in a configuration file like this one
-	[Bank]
-	signature=232345478290189289289082907892017892789
-	"""
-	filename = "public.sign"
-	customer_key = open(os.path.join("bank", "seller", "public.key"), 'r')
-	key_content = customer_key.read()[:-1]
-	signature = rsa.sign(text_to_int(key_content))
-	signature_file = ConfigParser()
-	signature_file["Bank"] = {"signature": signature}
-	with open(os.path.join("seller", filename), 'w') as signfile:
-		signature_file.write(signfile)
+	key = open(key, 'r')
+	content = key.read()
+	sign = rsa.sign(tools.text_to_int(content))
+
+	sign_cp = ConfigParser()
+	sign_cp[tools.ROLE_BANK] = {tools.OPT_S_SIGN: str(sign)}
+	with open(os.path.join(dest, tools.FILE_PUB_SIGN), 'w') as sign_f:
+		sign_cp.write(sign_f)
 
 def parsing_arguments():
 	"""Return the list of customers. Exit if some are missing"""
@@ -77,7 +64,7 @@ if __name__ == "__main__":
 	customers_list = []
 	for customer in customers_lst:
 
-		print("Creation of the customer " + customer, end=" ",flush=True)
+		print("Creation of the customer " + customer, end=" ", flush=True)
 
 		# Creation of the customer's path
 		directory = os.path.join(tools.DIR_CUSTOMERS, customer)
@@ -93,28 +80,29 @@ if __name__ == "__main__":
 		shutil.copy(os.path.join(directory, tools.FILE_PUB_KEY), customer_bank)
 
 		# Signing the customer's key with the bank private key
-		sign_customer_key(rsa_bank, customer)
+		key_fname = os.path.join(directory, tools.FILE_PUB_KEY)
+		sign_key(rsa_bank, key_fname, directory)
 
 		directory = os.path.join(directory, tools.DIR_CHQ_ISSUED)
 		os.mkdir(directory)
-	print(DONE)
+		print(DONE)
 
 	#Creation of the seller
-	print("Creation of the Seller ", end="",flush=True)
+	print("Creation of the Seller ", end="", flush=True)
 	os.mkdir(tools.DIR_SELLER)
 	keys = RSA.generate_keys(key_size=1024)
 	RSA.store_key(tools.DIR_SELLER, keys[RSA.private], keys[RSA.public])
 
 	os.mkdir(os.path.join(tools.DIR_BANK, tools.DIR_SELLER))
 	seller_pub_k = os.path.join(tools.DIR_SELLER, tools.FILE_PUB_KEY)
-	dest = os.path.join(tools.DIR_BANK, tools.DIR_SELLER, tools.FILE_PUB_KEY)
+	dest = os.path.join(tools.DIR_BANK, tools.DIR_SELLER)
 	shutil.copy(seller_pub_k, dest)
 
 	#todo create a function for seller and the customer
-	sign_seller_key(rsa_bank)
+	sign_key(rsa_bank,seller_pub_k, tools.DIR_SELLER)
 	print(DONE)
 
-	print("Creation of the databases ", end="",flush=True)
+	print("Creation of the databases ", end="", flush=True)
 	bank_db = ConfigParser()
 	for customer in customers_lst:
 		bank_db.add_section(customer)
@@ -126,7 +114,7 @@ if __name__ == "__main__":
 	seller_db.add_section(tools.SCT_SD_NOT_PAY)
 	seller_db.add_section(tools.SCT_SD_PAY)
 
-	seller_db_f = os.path.join(tools.DIR_SELLER, tools.DIR_SELLER_DB)
+	seller_db_f = os.path.join(tools.DIR_SELLER, tools.FILE_SELLER_DB)
 	with open(seller_db_f, 'w') as database_file:
 		seller_db.write(database_file)
 	print(DONE)
