@@ -1,13 +1,15 @@
 import binascii
 import sys
 
+ROLE_BANK = "Bank"
+ROLE_SELLER = "Seller"
+
 #######################################################
 # Every name of section and option must be write here #
 #######################################################
-## Cheque file
-# Client Section
+# Cheque file
 SCT_C_CLIENT = "Client"
-OPT_C_NAME = "Name"
+OPT_C_NAME = "Drawer"
 OPT_C_AMOUNT = "Amount"
 OPT_C_PAYEE = "Payee"
 OPT_C_TRANS_ID = "Transaction_id"
@@ -29,6 +31,10 @@ OPT_I_BUYER = "Buyer"
 SCT_SD_PAY = "Pay_in"
 SCT_SD_NOT_PAY = "Not_pay_in"
 
+# Signature file
+OPT_S_SIGN = "Signature"
+
+
 #############################################
 # Every parts of path name must be put here #
 #############################################
@@ -38,6 +44,10 @@ DIR_CHQ_ISSUED = "issued"
 DIR_SELLER = "seller"
 FILE_PUB_KEY = "public.key"
 FILE_PRI_KEY = "private.key"
+FILE_PUB_SIGN = "public.sign"
+FILE_SELLER_DB = "seller.db"
+FILE_BANK_DB = "bank.db"
+
 
 
 def text_to_int(text):
