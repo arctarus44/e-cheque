@@ -4,7 +4,7 @@ import os.path
 import sys
 import shutil
 from configparser import  ConfigParser
-from tools import *
+import tools
 
 DONE = "\033[1m\033[32mDone\033[0m"
 
@@ -38,77 +38,95 @@ def sign_seller_key(rsa):
 	with open(os.path.join("seller", filename), 'w') as signfile:
 		signature_file.write(signfile)
 
-
-if __name__ == "__main__":
-
+def parsing_arguments():
+	"""Return the list of customers. Exit if some are missing"""
 	try:
 		nb_customers = int(sys.argv[1])
 	except IndexError:
 		print("Missing argument", sys.stderr)
 		exit(1)
 
+	customers = []
+
+	for i in range(0, nb_customers):
+		try:
+			customers.append(sys.argv[2+i])
+		except IndexError:
+			print("Missing customer name", sys.stderr)
+			exit(1)
+
+	return customers
+
+if __name__ == "__main__":
+
+	customers_lst = parsing_arguments()
+
 	# Creating the bank
 	print("Creation of the Bank ", end="",flush=True)
-	os.mkdir("bank")
-	keys = RSA.generate_keys()#key_size=4096)
-	RSA.store_key("bank", keys[RSA.private], keys[RSA.public])
 
+	os.mkdir(tools.DIR_BANK)
+	keys = RSA.generate_keys()#key_size=4096)
+	RSA.store_key(tools.DIR_BANK, keys[RSA.private], keys[RSA.public])
 	print(DONE)
 
 	rsa_bank = RSA(keys[RSA.private][RSA.modulus],
 				   d=keys[RSA.private][RSA.private_exponent])
 
-	# Creating customer
-	os.mkdir("customers")
+	# Creating the customers
+	os.mkdir(tools.DIR_CUSTOMERS)
 	customers_list = []
-	for i in range(0, nb_customers):
-		try:
-			customer = sys.argv[2+i]
-			customers_list.append(customer)
-		except IndexError:
-			print("Missing customer name", sys.stderr)
+	for customer in customers_lst:
 
 		print("Creation of the customer " + customer, end=" ",flush=True)
-		directory = os.path.join("customers", customer)
+
+		# Creation of the customer's path
+		directory = os.path.join(tools.DIR_CUSTOMERS, customer)
 		os.mkdir(directory)
 
-		# Generating the keys of the customer
+		# Generation of customer's keys
 		keys = RSA.generate_keys(key_size=1024)
 		RSA.store_key(directory, keys[RSA.private], keys[RSA.public])
 
 		# Adding the customer's public key in the bank directory
-		customer_bank = os.path.join("bank", customer)
+		customer_bank = os.path.join(tools.DIR_BANK, customer)
 		os.mkdir(customer_bank)
-		shutil.copy(os.path.join(directory, "public.key"), customer_bank)
+		shutil.copy(os.path.join(directory, tools.FILE_PUB_KEY), customer_bank)
 
 		# Signing the customer's key with the bank private key
 		sign_customer_key(rsa_bank, customer)
 
-		directory = os.path.join(directory, "writed")
+		directory = os.path.join(directory, tools.DIR_CHQ_ISSUED)
 		os.mkdir(directory)
-		print(DONE)
+	print(DONE)
 
-	#Creating the seller
+	#Creation of the seller
 	print("Creation of the Seller ", end="",flush=True)
-	os.mkdir("seller")
+	os.mkdir(tools.DIR_SELLER)
 	keys = RSA.generate_keys(key_size=1024)
-	RSA.store_key("seller", keys[RSA.private], keys[RSA.public])
+	RSA.store_key(tools.DIR_SELLER, keys[RSA.private], keys[RSA.public])
 
-	os.mkdir("bank/seller")
-	shutil.copy(os.path.join("seller", "public.key"), os.path.join("bank", "seller", "public.key"))
+	os.mkdir(os.path.join(tools.DIR_BANK, tools.DIR_SELLER))
+	seller_pub_k = os.path.join(tools.DIR_SELLER, tools.FILE_PUB_KEY)
+	dest = os.path.join(tools.DIR_BANK, tools.DIR_SELLER, tools.FILE_PUB_KEY)
+	shutil.copy(seller_pub_k, dest)
+
+	#todo create a function for seller and the customer
 	sign_seller_key(rsa_bank)
 	print(DONE)
 
-	bank_database = ConfigParser()
-	bank_database.add_section("history")
-	for customer in customers_list:
-		bank_database.set("history", customer, "")
-	with open(os.path.join("bank", "database"), 'w') as database_file:
-		bank_database.write(database_file)
+	print("Creation of the databases ", end="",flush=True)
+	bank_db = ConfigParser()
+	for customer in customers_lst:
+		bank_db.add_section(customer)
+	bank_db_f = os.path.join(tools.DIR_BANK, tools.FILE_BANK_DB)
+	with open(bank_db_f, 'w') as database_file:
+		bank_db.write(database_file)
 
-	seller_database = ConfigParser()
-	seller_database["pay_in"] = {}
-	seller_database["not_pay_in"] = {}
+	seller_db = ConfigParser()
+	seller_db.add_section(tools.SCT_SD_NOT_PAY)
+	seller_db.add_section(tools.SCT_SD_PAY)
 
-	with open(os.path.join("seller", 'database'), 'w') as database_file:
-		seller_database.write(database_file)
+	seller_db_f = os.path.join(tools.DIR_SELLER, tools.DIR_SELLER_DB)
+	with open(seller_db_f, 'w') as database_file:
+		seller_db.write(database_file)
+	print(DONE)
