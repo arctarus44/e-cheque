@@ -1,58 +1,57 @@
 import sys
 import os
+import os.path
 from rsa import RSA
 from configparser import ConfigParser
-from shutil import copyfile
+import shutil
+import tools
 
-def read_bill():
-	"""Read a check from stdin and return an instance of ConfigParser."""
+def read_invoice():
+	"""Read an invoice from stdin and return an instance of ConfigParser."""
 	filename = "tmp.txt"
 	tmp_file = open(filename, 'w')
 	for line in sys.stdin.readlines():
 		tmp_file.write(line)
 	tmp_file.close()
-	bill = ConfigParser()
-	bill.read(filename)
+	invoice = ConfigParser()
+	invoice.read(filename)
 	os.remove("tmp.txt")
-	return bill
+	return invoice
 
 if __name__ == "__main__":
-	bill = read_bill()
+	real_drawer = sys.argv[1]
+	invoice = read_invoice()
+	tools.check_config(invoice, tools.STRCT_INVOICE)
 
-	if not bill.has_section("CLIENT"):
-		print("Missing section client", file=sys.stderr)
-		exit(1)
-	if not bill.has_option("CLIENT", "Name"):
-		print("Missing option name in the client section", file=sys.stderr)
-		exit(1)
-	if not bill.has_option("CLIENT", "Amount"):
-		print("Missing option amount in the client section", file=sys.stderr)
-		exit(1)
-	if not bill.has_option("CLIENT", "To"):
-		print("Missing option ordre in the client section", file=sys.stderr)
-		exit(1)
-	if not bill.has_option("CLIENT", "Transaction"):
-		print("Missing option transaction in the client section", file=sys.stderr)
+	drawer = invoice[tools.SCT_I_INVOICE][tools.OPT_I_BUYER]
+	total = invoice[tools.SCT_I_INVOICE][tools.OPT_I_TOTAL]
+	payee = invoice[tools.SCT_I_INVOICE][tools.OPT_I_SELLER]
+	transac_id = invoice[tools.SCT_I_INVOICE][tools.OPT_I_TRANS_ID]
+
+	if drawer != real_drawer:
+		print("This invoice is not for me !", sys.stderr)
 		exit(1)
 
-	customer_name = bill["CLIENT"]["name"]
+	# todo check if a check for this transaction was ever done
 
-	if bill.get("CLIENT", "Name") != customer_name:
-		print("This cheque is not for me !", sys.stderr)
-		exit(1)
+	cheque_cp = ConfigParser()
+	cheque_cp.add_section(tools.SCT_C_CHEQUE)
+	cheque_cp.set(tools.SCT_C_CHEQUE, tools.OPT_C_DRAWER, drawer)
+	cheque_cp.set(tools.SCT_C_CHEQUE, tools.OPT_C_TOTAL, total)
+	cheque_cp.set(tools.SCT_C_CHEQUE, tools.OPT_C_PAYEE, payee)
+	cheque_cp.set(tools.SCT_C_CHEQUE, tools.OPT_C_TRANS_ID, transac_id)
 
-	cheque = ConfigParser()
-	cheque.add_section("cheque")
-	cheque.set("cheque", "depositor", customer_name)
-	cheque.set("cheque", "beneficiary", bill.get("CLIENT", "To"))
-	cheque.set("cheque", "amount", bill.get("CLIENT", "Amount"))
-	cheque.set("cheque", "transaction_id", bill.get("CLIENT", "Transaction"))
 
-	cheque_fname = 'customers/' + customer_name + '/writed/cheque_' + bill["CLIENT"]["To"]+ "_" + bill["CLIENT"]["Transaction"] + '.ini'
-	with open(cheque_fname,'w') as cheque_file:
-		cheque.write(cheque_file)
-	copyfile(cheque_fname, 'seller/cheque.ini')
+	cheque_fname = payee + "_" + transac_id + tools.EXT_CHEQUE
+	cheque_fname = os.path.join(tools.DIR_CUSTOMERS, real_drawer,
+								tools.DIR_CHQ_ISSUED, cheque_fname)
+
+	with open(cheque_fname,'w') as cheque_f:
+		cheque_cp.write(cheque_f)
+
 	tmp = open(cheque_fname, 'r')
 	print(tmp.read())
+
+	# add some magic crypto here
 
 	exit(0)
