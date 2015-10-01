@@ -19,7 +19,10 @@ def read_invoice():
 	return invoice
 
 if __name__ == "__main__":
-	real_drawer = sys.argv[1]
+	try:
+		real_drawer = sys.argv[1]
+	except IndexError:
+		print("You must give a customer name.", file=sys.stderr)
 	invoice = read_invoice()
 	tools.check_config(invoice, tools.STRCT_INVOICE)
 
