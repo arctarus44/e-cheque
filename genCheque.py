@@ -33,6 +33,12 @@ if __name__ == "__main__":
 		exit(1)
 
 	# todo check if a check for this transaction was ever done
+	cheque_fname = payee + "_" + transac_id + tools.EXT_CHEQUE
+	cheque_fname = os.path.join(tools.DIR_CUSTOMERS, real_drawer,
+								tools.DIR_CHQ_ISSUED, cheque_fname)
+	if os.path.exists(cheque_fname) and os.path.isfile(cheque_fname):
+		print("This invoice is already paid !", file=sys.stderr)
+		exit(1)
 
 	cheque_cp = ConfigParser()
 	cheque_cp.add_section(tools.SCT_C_CHEQUE)
@@ -40,11 +46,6 @@ if __name__ == "__main__":
 	cheque_cp.set(tools.SCT_C_CHEQUE, tools.OPT_C_TOTAL, total)
 	cheque_cp.set(tools.SCT_C_CHEQUE, tools.OPT_C_PAYEE, payee)
 	cheque_cp.set(tools.SCT_C_CHEQUE, tools.OPT_C_TRANS_ID, transac_id)
-
-
-	cheque_fname = payee + "_" + transac_id + tools.EXT_CHEQUE
-	cheque_fname = os.path.join(tools.DIR_CUSTOMERS, real_drawer,
-								tools.DIR_CHQ_ISSUED, cheque_fname)
 
 	with open(cheque_fname,'w') as cheque_f:
 		cheque_cp.write(cheque_f)
