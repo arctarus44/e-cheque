@@ -29,7 +29,7 @@ if __name__ == "__main__":
 	transac_id = invoice[tools.SCT_I_INVOICE][tools.OPT_I_TRANS_ID]
 
 	if drawer != real_drawer:
-		print("This invoice is not for me !", sys.stderr)
+		print("This invoice is not for me !", file=sys.stderr)
 		exit(1)
 
 	# todo check if a check for this transaction was ever done
