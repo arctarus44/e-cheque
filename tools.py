@@ -48,6 +48,7 @@ FILE_PRI_KEY = "private.key"
 FILE_PUB_SIGN = "public.sign"
 FILE_SELLER_DB = "seller.db"
 FILE_BANK_DB = "bank.db"
+EXT_INVOICE = ".inv"
 
 
 

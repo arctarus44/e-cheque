@@ -1,51 +1,62 @@
-import configparser
+from configparser import ConfigParser
 import sys
 import os
+import os.path
 import random
-from datetime import datetime, date, time
 from shutil import copyfile
+import tools
 
 SEED_LENGTH = 10
 
 TRANSACTION_ID_LENGTH = 256
 
-def genFacture(name,amount,to):
+def add_invoice_db(transac_id, total):
+	"""Add the invoice in the seller database."""
 
-	config = configparser.RawConfigParser()
+	db_cp = ConfigParser()
+	db_fname = os.path.join(tools.DIR_SELLER, tools.FILE_SELLER_DB)
+	print(db_fname)
+	db_cp.read(db_fname)
+	db_cp.set(tools.SCT_SD_NOT_PAY, transac_id, str(total))
+
+	with open(db_fname,'w') as db_file:
+		db_cp.write(db_file)
+
+
+def gen_invoice(buyer, seller, total):
+
+	# Generation of the transaction id
 	random.seed(os.urandom(SEED_LENGTH))
+	transac_id = hex(random.getrandbits(TRANSACTION_ID_LENGTH))[2:]
 
-	dt = datetime.now()
-	dn = str(dt.year) + str(dt.month) + str(dt.day) + str(dt.hour) + str(dt.minute) + str(dt.second) + str(dt.microsecond)
-	id_transac = hex(random.getrandbits(TRANSACTION_ID_LENGTH))[2:]
+	add_invoice_db(transac_id, total)
 
-	config['CLIENT'] = {'Name' : name, 'Amount' : amount, 'To' : to, 'Transaction' : id_transac}
-	name = config['CLIENT']['Name']
+	invoice_cp = ConfigParser()
+	# Generate the invoice
+	invoice_cp.add_section(tools.SCT_I_INVOICE)
+	invoice_cp[tools.SCT_I_INVOICE] = {tools.OPT_I_SELLER: tools.ROLE_SELLER,
+									   tools.OPT_I_BUYER: buyer,
+									   tools.OPT_I_TOTAL: total,
+									   tools.OPT_I_TRANS_ID: transac_id}
 
-	with open('seller/facture_'+id_transac+'_'+dn+'.ini','w') as facture:
-		config.write(facture)
-		facture.close()
+	invoice_fname = buyer + "_" + transac_id + tools.EXT_INVOICE
 
-	os.path.join("seller",'facture_'+id_transac+'_'+dn+'.ini')
+	invoice_fname = os.path.join(tools.DIR_SELLER, tools.DIR_INVOICE,
+								 invoice_fname)
+	with open(invoice_fname, 'w') as invoice_file:
+		invoice_cp.write(invoice_file)
 
-	copyfile('seller/facture_'+id_transac+'_'+dn+'.ini','customers/'+name+'/facture_'+id_transac+'_'+dn+'.ini')
-
-	facture = open('seller/facture_'+id_transac+'_'+dn+'.ini','r')
-	fr = facture.read()
-	print(fr)
+	invoice = open(invoice_fname, 'r')
+	invoice_content = facture.read()
 	facture.close()
+	print(invoice_content)
 
-	data = configparser.ConfigParser()
-	data.read('seller/database')
-	new_list = data["Bill"]["not_pay_in"].split(',')
-	new_list.append(id_transac)
-	new_str = ""
-	for elt in new_list:
-		new_str += elt +","
-
-	data.set("Bill", "not_pay_in", new_str)
-	with open('seller/database','w') as database:
-		data.write(database)
-		database.close()
+def parse_argt():
+	buyer = sys.argv[1]
+	seller = sys.argv[2]
+	total = int(sys.argv[3])
+	return buyer, seller, total
 
 if __name__ == "__main__":
-	genFacture(sys.argv[1],sys.argv[2],sys.argv[3])
+	buyer, seller, total = parse_argt()
+	gen_invoice(buyer, seller, total)
