@@ -1,5 +1,8 @@
 import binascii
 import sys
+import os
+from configparser import ConfigParser
+
 
 ROLE_BANK = "Bank"
 ROLE_SELLER = "Seller"
@@ -91,3 +94,17 @@ def check_config(config, structure):
 				print(MISSING_OPT.format(option, sect_name), file=sys.stderr)
 				return False
 	return True
+
+
+def read_stdin():
+	"""Read a file from stdin and return an instance of ConfigParser
+	corresponding to the file."""
+	filename = "tmp.txt"
+	tmp_file = open(filename, 'w')
+	for line in sys.stdin.readlines():
+		tmp_file.write(line)
+	tmp_file.close()
+	config = ConfigParser()
+	config.read(filename)
+	os.remove("tmp.txt")
+	return config
