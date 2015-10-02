@@ -62,6 +62,11 @@ STRCT_INVOICE = {SCT_I_INVOICE: [OPT_I_TOTAL,
 								 OPT_I_TRANS_ID,
 								 OPT_I_BUYER]}
 
+STRCT_CHEQUE = {SCT_C_CHEQUE: [OPT_C_DRAWER,
+							   OPT_C_TOTAL,
+							   OPT_C_PAYEE,
+							   OPT_C_TRANS_ID]}
+
 def text_to_int(text):
 	"""Convert the ascii text given as string to an integer"""
 	hex_repr = binascii.hexlify(text.encode("ascii"))
