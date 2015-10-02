@@ -6,17 +6,6 @@ from configparser import ConfigParser
 import shutil
 import tools
 
-def read_invoice():
-	"""Read an invoice from stdin and return an instance of ConfigParser."""
-	filename = "tmp.txt"
-	tmp_file = open(filename, 'w')
-	for line in sys.stdin.readlines():
-		tmp_file.write(line)
-	tmp_file.close()
-	invoice = ConfigParser()
-	invoice.read(filename)
-	os.remove("tmp.txt")
-	return invoice
 
 if __name__ == "__main__":
 	try:
@@ -24,7 +13,7 @@ if __name__ == "__main__":
 	except IndexError:
 		print("You must give a customer name.", file=sys.stderr)
 		exit(1)
-	invoice = read_invoice()
+	invoice = tools.read_stdin()
 	tools.check_config(invoice, tools.STRCT_INVOICE)
 
 	drawer = invoice[tools.SCT_I_INVOICE][tools.OPT_I_BUYER]
