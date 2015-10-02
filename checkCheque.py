@@ -28,4 +28,10 @@ if __name__ == "__main__":
 		print(NO_INVOICE.format(buyer, transac_id), file=sys.stderr)
 		exit(1)
 
+	# Todo change the following line when a correct signature scheme will
+	# be implemented
 	cheque_cp[tools.ROLE_SELLER] = {"Valid" : "true"}
+	fname = buyer + "_" + transac_id + tools.EXT_INVOICE
+	fname = os.path.joint(tools.DIR_SELLER, tools.DIR_INVOICE, fname)
+	with open(fname, 'w') as cheque_f:
+		cheque_cp.write(cheque_f
