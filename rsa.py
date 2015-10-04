@@ -1,7 +1,6 @@
 import os
 import sys
 import os.path
-
 import math
 import random
 from fractions import gcd
@@ -74,6 +73,27 @@ class RSA:
 	private_exponent = "D"
 	private = "PRIVATE"
 	public = "PUBLIC"
+	__SPLIT_SIZE = 100
+	__PADDING = "\0"
+
+	@staticmethod
+	def __text_to_int(text):
+		"""Convert the ascii text given as string to an integer"""
+		integer = 0
+		for c in text:
+			integer = integer << 8
+			integer = integer + ord(c)
+		return integer
+
+	@staticmethod
+	def __int_to_text(integer):
+		"""Convert the given number as an asciistring """
+		text = ""
+		while integer>0:
+			char = chr(integer & 0xFF)
+			text = char + text
+			integer = integer >> 8
+		return text[:-1]
 
 	@staticmethod
 	def read_key(file, instanciate=True):
@@ -140,15 +160,6 @@ class RSA:
 		self.__d = d
 		self.__e = e
 
-	def e(self):
-		return self.__e
-
-	def d(self):
-		return self.__d
-
-	def n(self):
-		return self.__n
-
 	def decryption(self, c):
 		return pow(c, self.__d, self.__n)
 
@@ -156,10 +167,47 @@ class RSA:
 		return pow(m, self.__e, self.__n)
 
 	def sign(self, m):
-		return pow(m, self.__d, self.__n)
+		if len(m) % self.__SPLIT_SIZE != 0: # need some padding
+			for i in range(0, self.__SPLIT_SIZE - (len(m) % self.__SPLIT_SIZE) -1):
+				m = m + self.__PADDING
 
-	def check_signature(self, s):
+		m = str(self.__text_to_int(m))
+		m_split = [m[i:i+self.__SPLIT_SIZE]
+				   for i in range(0, len(m), self.__SPLIT_SIZE)]
+
+		result = []
+		for part in m_split:
+			res = pow(int(part), self.__d, self.__n)
+			result.append(pow(int(part), self.__d, self.__n))
+		return result
+
+	def check_signature(self, sign):
 		"""This method do not realy chek if the signature is rigth. This method
 		cannot check if the result is right or not. It return the content
 		decoded from the signature."""
-		return pow(s, self.__e, self.__n)
+
+		def add_padding(txt):
+			"""Add some padding to the left"""
+			for i in range(0, self.__SPLIT_SIZE - len(txt)):
+				txt = "0" + txt
+			return txt
+
+		def remove_right_padding(text):
+			count = 0
+			for c in reversed(text):
+				if c == self.__PADDING:
+					count += 1
+				if c != self.__PADDING:
+					break
+			return text[:-count]
+
+		result = ""
+		small = 0
+		for s in sign:
+			res = str(pow(int(s), self.__e, self.__n))
+			if len(res) != self.__SPLIT_SIZE:
+				small += 1
+				res = add_padding(res)
+			result += res
+		txt = self.__int_to_text(int(result))
+		return remove_right_padding(txt)
