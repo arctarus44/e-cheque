@@ -18,7 +18,7 @@ def sign_key(rsa, key, dest):
 
 	key = open(key, 'r')
 	content = key.read()
-	sign = rsa.sign(tools.text_to_int(content))
+	sign = rsa.sign(content)
 
 	sign_cp = ConfigParser()
 	sign_cp[tools.ROLE_BANK] = {tools.OPT_S_SIGN: str(sign)}
