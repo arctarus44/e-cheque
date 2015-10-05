@@ -6,6 +6,28 @@ from configparser import ConfigParser
 import shutil
 import tools
 
+TMP_FILE = "tmp.txt"
+
+def check_invoice(signed_invoice):
+	"""Check if the configparser instance is a signed invoice. If not exit."""
+	pub_cp = ConfigParser()
+	pub_cp.read(os.path.join(tools.DIR_SELLER, tools.FILE_PUB_KEY))
+
+
+	pub_k = RSA(int(pub_cp[tools.SCT_K_KEY][tools.OPT_K_N]),
+				e=int(pub_cp[tools.SCT_K_KEY][tools.OPT_K_E]))
+
+	check = pub_k.check_signature(signed_invoice[tools.ROLE_SELLER][tools.OPT_S_SIGN])
+
+	tmp = open(TMP_FILE, 'w')
+	tmp.write(check)
+	tmp.close()
+
+	invoice_cp = ConfigParser()
+	invoice_cp.read(TMP_FILE)
+	os.remove(TMP_FILE)
+	tools.check_config(invoice_cp, tools.STRCT_INVOICE)
+	return invoice_cp
 
 if __name__ == "__main__":
 	try:
@@ -13,8 +35,9 @@ if __name__ == "__main__":
 	except IndexError:
 		print("You must give a customer name.", file=sys.stderr)
 		exit(1)
-	invoice = tools.read_stdin()
-	tools.check_config(invoice, tools.STRCT_INVOICE)
+	signed_inv = tools.read_stdin()
+
+	invoice = check_invoice(signed_inv)
 
 	drawer = invoice[tools.SCT_I_INVOICE][tools.OPT_I_BUYER]
 	total = invoice[tools.SCT_I_INVOICE][tools.OPT_I_TOTAL]
@@ -25,7 +48,6 @@ if __name__ == "__main__":
 		print("This invoice is not for me !", file=sys.stderr)
 		exit(1)
 
-	# todo check if a check for this transaction was ever done
 	cheque_fname = payee + "_" + transac_id + tools.EXT_CHEQUE
 	cheque_fname = os.path.join(tools.DIR_CUSTOMERS, real_drawer,
 								tools.DIR_CHQ_ISSUED, cheque_fname)
@@ -43,9 +65,17 @@ if __name__ == "__main__":
 	with open(cheque_fname,'w') as cheque_f:
 		cheque_cp.write(cheque_f)
 
-	tmp = open(cheque_fname, 'r')
-	print(tmp.read())
+	cheque_f = open(cheque_fname, 'r')
+	cheque_content = cheque_f.read()
 
-	# add some magic crypto here
+	pri_cp = ConfigParser()
+	pri_cp.read(os.path.join(tools.DIR_CUSTOMERS, real_drawer, tools.FILE_PRI_KEY))
 
-	exit(0)
+	pri_k = RSA(int(pri_cp[tools.SCT_K_KEY][tools.OPT_K_N]),
+				d=int(pri_cp[tools.SCT_K_KEY][tools.OPT_K_D]))
+
+	sign = pri_k.sign(cheque_content)
+
+	sign_cp = ConfigParser()
+	sign_cp[real_drawer] = {tools.OPT_S_SIGN: str(sign)}
+	sign_cp.write(sys.stdout)
