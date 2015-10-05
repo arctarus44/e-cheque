@@ -5,7 +5,7 @@ import math
 import random
 from fractions import gcd
 from configparser import ConfigParser
-
+from re import split
 
 def is_prime(n, accuracy=10):
 	"""Check if the number p is a prime number. Rabin-Miller edition.
@@ -74,7 +74,7 @@ class RSA:
 	private = "PRIVATE"
 	public = "PUBLIC"
 	__SPLIT_SIZE = 100
-	__PADDING = "\0"
+	__DELIM = ";"
 
 	@staticmethod
 	def __text_to_int(text):
@@ -93,7 +93,7 @@ class RSA:
 			char = chr(integer & 0xFF)
 			text = char + text
 			integer = integer >> 8
-		return text[:-1]
+		return text
 
 	@staticmethod
 	def read_key(file, instanciate=True):
@@ -167,27 +167,23 @@ class RSA:
 		return pow(m, self.__e, self.__n)
 
 	def sign(self, m):
-		if len(m) % self.__SPLIT_SIZE != 0: # need some padding
-			count = 0
-			for i in range(0, self.__SPLIT_SIZE - (len(m) % self.__SPLIT_SIZE) -1):
-				count +=1
-				m = m + self.__PADDING
-			print("Adding "  + str(count))
+		m_int = str(self.__text_to_int(m))
 
-		m = str(self.__text_to_int(m))
-		m_split = [m[i:i+self.__SPLIT_SIZE]
-				   for i in range(0, len(m), self.__SPLIT_SIZE)]
+		# Adding a padding on the left. So when I decode the block sign
+		# i know exactly what I have to retreive, with the left zero.
+		if len(m_int) % self.__SPLIT_SIZE != 0: # need some padding
+			for i in range(0, self.__SPLIT_SIZE - (len(m_int) % self.__SPLIT_SIZE)):
+				m_int = "0" + m_int
 
-		result = []
+		m_split = [m_int[i:i+self.__SPLIT_SIZE]
+				   for i in range(0, len(m_int), self.__SPLIT_SIZE)]
+
+		result = ""
 		for part in m_split:
 			part_int = int(part)
-			if part_int < self.__n:
-				res = pow(part_int, self.__d, self.__n)
-			else:
-				print("trop grand")
-				exit(0)
-
-			result.append(res)
+			result += str(pow(part_int, self.__d, self.__n))
+			if part != m_split[-1] and len(m_split) != 1:
+				result += self.__DELIM
 		return result
 
 	def check_signature(self, sign):
@@ -201,23 +197,9 @@ class RSA:
 				txt = "0" + txt
 			return txt
 
-		def remove_right_padding(text):
-			count = 0
-			for c in reversed(text):
-				if c == self.__PADDING:
-					count += 1
-				if c != self.__PADDING:
-					break
-			print("Remove " + str(count))
-			return text[:-count]
-
+		sign_lst = split(self.__DELIM, sign)
 		result = ""
-		small = 0
-		for s in sign:
-			res = str(pow(int(s), self.__e, self.__n))
-			if len(res) != self.__SPLIT_SIZE:
-				small += 1
-				res = add_padding(res)
-			result += res
-		txt = self.__int_to_text(int(result))
-		return remove_right_padding(txt)
+		for sign in sign_lst:
+			res = str(pow(int(sign), self.__e, self.__n))
+			result += add_padding(res)
+		return self.__int_to_text(int(result))
