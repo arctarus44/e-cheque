@@ -61,3 +61,4 @@ target/
 bank/
 customers/
 seller/
+test.py
