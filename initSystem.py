@@ -99,7 +99,6 @@ if __name__ == "__main__":
 	dest = os.path.join(tools.DIR_BANK, tools.DIR_SELLER)
 	shutil.copy(seller_pub_k, dest)
 
-	#todo create a function for seller and the customer
 	sign_key(rsa_bank,seller_pub_k, tools.DIR_SELLER)
 	print(DONE)
 
