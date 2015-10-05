@@ -168,8 +168,11 @@ class RSA:
 
 	def sign(self, m):
 		if len(m) % self.__SPLIT_SIZE != 0: # need some padding
+			count = 0
 			for i in range(0, self.__SPLIT_SIZE - (len(m) % self.__SPLIT_SIZE) -1):
+				count +=1
 				m = m + self.__PADDING
+			print("Adding "  + str(count))
 
 		m = str(self.__text_to_int(m))
 		m_split = [m[i:i+self.__SPLIT_SIZE]
@@ -177,8 +180,14 @@ class RSA:
 
 		result = []
 		for part in m_split:
-			res = pow(int(part), self.__d, self.__n)
-			result.append(pow(int(part), self.__d, self.__n))
+			part_int = int(part)
+			if part_int < self.__n:
+				res = pow(part_int, self.__d, self.__n)
+			else:
+				print("trop grand")
+				exit(0)
+
+			result.append(res)
 		return result
 
 	def check_signature(self, sign):
@@ -199,6 +208,7 @@ class RSA:
 					count += 1
 				if c != self.__PADDING:
 					break
+			print("Remove " + str(count))
 			return text[:-count]
 
 		result = ""
