@@ -21,8 +21,8 @@ OPT_C_TRANS_ID = "Transaction_id"
 SCT_K_KEY = "Key"
 OPT_K_SIZE = "Size"
 OPT_K_E = "E"
-OPT_K_N = "D"
-OPT_K_D = "N"
+OPT_K_N = "N"
+OPT_K_D = "D"
 
 # Invoice
 SCT_I_INVOICE = "Invoice"
@@ -67,6 +67,7 @@ STRCT_CHEQUE = {SCT_C_CHEQUE: [OPT_C_DRAWER,
 							   OPT_C_TOTAL,
 							   OPT_C_PAYEE,
 							   OPT_C_TRANS_ID]}
+
 
 def check_config(config, structure):
 	"""Check if the ConfigParser instance respect the structure required."""

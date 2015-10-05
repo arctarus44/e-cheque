@@ -1,10 +1,11 @@
-from configparser import ConfigParser
 import sys
 import os
 import os.path
 import random
-from shutil import copyfile
 import tools
+from shutil import copyfile
+from configparser import ConfigParser
+from rsa import RSA
 
 SEED_LENGTH = 10
 
@@ -48,10 +49,22 @@ def gen_invoice(buyer, seller, total):
 	with open(invoice_fname, 'w') as invoice_file:
 		invoice_cp.write(invoice_file)
 
+	str = ""
+
 	invoice = open(invoice_fname, 'r')
 	invoice_content = invoice.read()
 	invoice.close()
-	print(invoice_content)
+
+	pri_cp = ConfigParser()
+	pri_cp.read(os.path.join(tools.DIR_SELLER, tools.FILE_PRI_KEY))
+	pri_k = RSA(int(pri_cp[tools.SCT_K_KEY][tools.OPT_K_N]),
+				d=int(pri_cp[tools.SCT_K_KEY][tools.OPT_K_D]))
+
+	sign_inv = ConfigParser()
+	sign_content = pri_k.sign(invoice_content)
+	sign_inv[tools.ROLE_SELLER] = {tools.OPT_S_SIGN: sign_content}
+
+	sign_inv.write(sys.stdout)
 
 def parse_argt():
 	buyer = sys.argv[1]
