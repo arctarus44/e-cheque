@@ -3,6 +3,7 @@ import sys
 import os.path
 import math
 import random
+import tools
 from fractions import gcd
 from configparser import ConfigParser
 from re import split
@@ -101,14 +102,17 @@ class RSA:
 		(the default behaviour), this method will return an instance of RSA."""
 		key_file = ConfigParser()
 		key_file.read(file)
-		key= {RSA.modulus: int(key_file["key"]["n"])}
-		if key_file.has_option("key", "e"): # the key is a public key
-			key[RSA.public_exponent] = int(key_file["key"]["e"])
+		key= {RSA.modulus: int(key_file[tools.SCT_K_KEY][tools.OPT_K_N])}
+		if key_file.has_option(tools.SCT_K_KEY,
+							   tools.OPT_K_E): # the key is a public key
+			key[RSA.public_exponent] = int(key_file[tools.SCT_K_KEY][tools.OPT_K_E])
+
 			if instanciate:
 				return RSA(key[RSA.modulus], e=key[RSA.public_exponent])
 
 		else:					# the key is a private key
-			key[RSA.private_exponent] = int(key_file["key"]["d"])
+			key[RSA.private_exponent] = int(key_file[tools.SCT_K_KEY][tools.OPT_K_D])
+
 			if instanciate:
 				return RSA(key[RSA.modulus], d=key[RSA.private_exponent])
 		return key
@@ -139,19 +143,18 @@ class RSA:
 
 		from configparser import ConfigParser
 
-		private_file = "private.key"
-		public_file = "public.key"
-
 		if private_dict is not None:
 			private_k = ConfigParser()
-			private_k["key"] = private_dict
-			with open(os.path.join(directory, private_file), 'w') as keyfile:
+			private_k[tools.SCT_K_KEY] = private_dict
+			with open(os.path.join(directory, tools.FILE_PRI_KEY),
+					  'w') as keyfile:
 				private_k.write(keyfile)
 
 		if public_dict is not None:
 			public_k = ConfigParser()
-			public_k["key"] = public_dict
-			with open(os.path.join(directory, public_file), 'w') as keyfile:
+			public_k[tools.SCT_K_KEY] = public_dict
+			with open(os.path.join(directory, tools.FILE_PUB_KEY),
+					  'w') as keyfile:
 				public_k.write(keyfile)
 
 
