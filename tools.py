@@ -115,7 +115,7 @@ def read_stdin():
 	return config
 
 def decode_public_key(pk_signed, public_key, name):
-	"""Decode the public key signed name with his private key."""
+	"""Decode the public key signed by name with his private key."""
 	pub_f = ConfigParser()
 	pub_f.read(public_key)
 
