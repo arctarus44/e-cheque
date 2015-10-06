@@ -3,6 +3,7 @@ import sys
 import os
 import rsa
 from configparser import ConfigParser
+from configparser import ParsingError
 
 #########
 # ROLES #
@@ -63,6 +64,13 @@ EXT_CHEQUE = ".chq"
 #########
 TMP_FILE = "tmp.txt"
 
+#################
+# Error Message #
+#################
+DRAWEE_SIGN_ERROR = "An error occured during the decoding the drawee signature. The signature might be incorrect"
+SELLER_SIGN_ERROR = "An error occured during the decoding the seller signature. The signature might be incorrect"
+SELLER_SIGN_ERROR = "An error occured during the decoding the signature. The signature might be incorrect"
+
 #################################################################
 # Every structure of files open with ConfigParser must put here #
 #################################################################
@@ -114,6 +122,7 @@ def read_stdin():
 	tmp_file.close()
 	config = ConfigParser()
 	config.read(TMP_FILE)
+
 	os.remove(TMP_FILE)
 	return config
 
@@ -134,7 +143,12 @@ def decode_public_key(pk_signed, public_key, name):
 	tmp.close()
 
 	content_cp = ConfigParser()
-	content_cp.read(TMP_FILE)
+	try:
+		content_cp.read(TMP_FILE)
+	except ParsingError:
+		print(tools.SIGN_ERROR, file=sys.stderr)
+		exit(1)
+
 
 	decoded_content = pub_k.check_signature(content_cp[name][OPT_S_SIGN])
 	tmp = open(TMP_FILE, 'w')

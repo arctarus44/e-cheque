@@ -3,29 +3,37 @@ import os
 import os.path
 from rsa import RSA
 from configparser import ConfigParser
+from configparser import ParsingError
 import shutil
 import tools
 
-TMP_FILE = "tmp.txt"
+ALREADY_PAID = "This invoice is already paid !"
+NOT_FOR_ME = "This invoice is not for me !"
 
 def check_invoice(signed_invoice):
 	"""Check if the configparser instance is a signed invoice. If not exit."""
-	pub_cp = ConfigParser()
-	pub_cp.read(os.path.join(tools.DIR_SELLER, tools.FILE_PUB_KEY))
 
+	seller_sign_key = os.path.join(os.path.join(tools.DIR_SELLER,
+												tools.FILE_PUB_SIGN))
+	bank_pukf = os.path.join(tools.DIR_BANK, tools.FILE_PUB_KEY)
+
+	pub_cp = tools.decode_public_key(seller_sign_key, bank_pukf,
+									 tools.ROLE_BANK)
+
+	tools.check_config(pub_cp, tools.STRCT_PUB_KEY)
 
 	pub_k = RSA(int(pub_cp[tools.SCT_K_KEY][tools.OPT_K_N]),
 				e=int(pub_cp[tools.SCT_K_KEY][tools.OPT_K_E]))
 
 	check = pub_k.check_signature(signed_invoice[tools.ROLE_SELLER][tools.OPT_S_SIGN])
 
-	tmp = open(TMP_FILE, 'w')
+	tmp = open(tools.TMP_FILE, 'w')
 	tmp.write(check)
 	tmp.close()
 
 	invoice_cp = ConfigParser()
-	invoice_cp.read(TMP_FILE)
-	os.remove(TMP_FILE)
+	invoice_cp.read(tools.TMP_FILE)
+	os.remove(tools.TMP_FILE)
 	tools.check_config(invoice_cp, tools.STRCT_INVOICE)
 	return invoice_cp
 
@@ -35,7 +43,11 @@ if __name__ == "__main__":
 	except IndexError:
 		print("You must give a customer name.", file=sys.stderr)
 		exit(1)
-	signed_inv = tools.read_stdin()
+	try:
+		signed_inv = tools.read_stdin()
+	except ParsingError:
+		print(tool.SELLER_SIGN_ERROR, file=sys.stderr)
+		exit(1)
 
 	invoice = check_invoice(signed_inv)
 
@@ -45,14 +57,14 @@ if __name__ == "__main__":
 	transac_id = invoice[tools.SCT_I_INVOICE][tools.OPT_I_TRANS_ID]
 
 	if drawer != real_drawer:
-		print("This invoice is not for me !", file=sys.stderr)
+		print(NOT_FOR_ME, file=sys.stderr)
 		exit(1)
 
 	cheque_fname = payee + "_" + transac_id + tools.EXT_CHEQUE
 	cheque_fname = os.path.join(tools.DIR_CUSTOMERS, real_drawer,
 								tools.DIR_CHQ_ISSUED, cheque_fname)
 	if os.path.exists(cheque_fname) and os.path.isfile(cheque_fname):
-		print("This invoice is already paid !", file=sys.stderr)
+		print(ALREADY_PAID, file=sys.stderr)
 		exit(1)
 
 	cheque_cp = ConfigParser()

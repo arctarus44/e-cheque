@@ -9,7 +9,7 @@ from re import split
 ALREADY_PAY_IN = "This cheque is already pay in."
 PAY_IN = "This cheque is cashed now."
 CUSTOMER_NOT_FOUND = "The customer {0} is not found is the database."
-SELLER_SIGN_ERROR = "An error occured during the decoding of the seller sign. The signature might be incorrect"
+
 
 
 def decode_sign(sign, pub_k):
@@ -78,7 +78,7 @@ if __name__ == "__main__":
 	try:
 		seller_sign = tools.read_stdin()
 	except ParsingError:
-		print(SELLER_SIGN_ERROR)
+		print(tools.SELLER_SIGN_ERROR, file=sys.stderr)
 		exit(1)
 
 	drawee_sign = decode_sign(seller_sign[tools.ROLE_SELLER][tools.OPT_S_SIGN],

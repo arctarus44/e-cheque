@@ -3,9 +3,8 @@ import os
 import os.path
 import tools
 from configparser import ConfigParser
+from configparser import ParsingError
 from rsa import RSA
-
-TMP_FILE = "tmp.txt"
 
 def exist_invoice(buyer, transac_id):
 	"""Check if a transaction exist with the specified buyer and transaction
@@ -30,13 +29,14 @@ def decode_sign(sign, drawee):
 
 	decoded = pub_k.check_signature(sign)
 
-	tmp = open(TMP_FILE, 'w')
+	tmp = open(tools.TMP_FILE, 'w')
 	tmp.write(decoded)
 	tmp.close()
 
 	# Parse the decoded cheque and check his structure
 	decoded_cheque = ConfigParser()
 	decoded_cheque.read(tools.TMP_FILE)
+	os.remove(tools.TMP_FILE)
 	tools.check_config(decoded_cheque, tools.STRCT_CHEQUE)
 	return decoded_cheque
 
@@ -44,7 +44,11 @@ if __name__ == "__main__":
 	NO_INVOICE = "No invoice corresponding to the seller {0}"
 	NO_INVOICE += " and the transaction id {1}."
 
-	sign_cp = tools.read_stdin()
+	try:
+		sign_cp = tools.read_stdin()
+	except ParsingError:
+		print(tools.DRAWEE_SIGN_ERROR, file=sys.stderr)
+		exit(1)
 	drawee = sign_cp.sections()[0]
 
 	cheque_cp = decode_sign(sign_cp[drawee][tools.OPT_S_SIGN], drawee)
@@ -69,7 +73,7 @@ if __name__ == "__main__":
 
 	with open(tools.TMP_FILE, 'w') as f:
 		sign_cp.write(f)
-	cheque_f = open(TMP_FILE, 'r')
+	cheque_f = open(tools.TMP_FILE, 'r')
 	content = cheque_f.read()
 	os.remove(tools.TMP_FILE)
 

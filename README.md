@@ -4,4 +4,4 @@
 
 Todo List:
 - [X] Seller : check if the cheque was writed by the drawee. And prepare the cheque for deposit
-- [ ] Banks : check if the cheque filed by the seller was written and "approved" by the seller
+- [X] Banks : check if the cheque filed by the seller was written and "approved" by the seller
