@@ -62,3 +62,8 @@ bank/
 customers/
 seller/
 test.py
+
+*.key
+*.chq
+*.inv
+*.sign
