@@ -1,9 +1,14 @@
 import binascii
 import sys
 import os
+import rsa
 from configparser import ConfigParser
 
+TMP_FILE = "tmp.txt"
 
+#########
+# ROLES #
+#########
 ROLE_BANK = "Bank"
 ROLE_SELLER = "Seller"
 
@@ -68,6 +73,12 @@ STRCT_CHEQUE = {SCT_C_CHEQUE: [OPT_C_DRAWER,
 							   OPT_C_PAYEE,
 							   OPT_C_TRANS_ID]}
 
+STRCT_PUB_KEY = {SCT_K_KEY: [OPT_K_E,
+							 OPT_K_N]}
+
+STRCT_PRI_KEY = {SCT_K_KEY: [OPT_K_D,
+							 OPT_K_N]}
+
 
 def check_config(config, structure):
 	"""Check if the ConfigParser instance respect the structure required."""
@@ -94,12 +105,42 @@ def check_config(config, structure):
 def read_stdin():
 	"""Read a file from stdin and return an instance of ConfigParser
 	corresponding to the file."""
-	filename = "tmp.txt"
-	tmp_file = open(filename, 'w')
+	tmp_file = open(TMP_FILE, 'w')
 	for line in sys.stdin.readlines():
 		tmp_file.write(line)
 	tmp_file.close()
 	config = ConfigParser()
-	config.read(filename)
-	os.remove("tmp.txt")
+	config.read(TMP_FILE)
+	os.remove(TMP_FILE)
 	return config
+
+def decode_public_key(pk_signed, public_key, name):
+	"""Decode the public key signed name with his private key."""
+	pub_f = ConfigParser()
+	pub_f.read(public_key)
+
+	pub_k = rsa.RSA(int(pub_f[SCT_K_KEY][OPT_K_N]),
+				e=int(pub_f[SCT_K_KEY][OPT_K_E]))
+
+	puk_sign_f = open(pk_signed, 'r')
+	content = puk_sign_f.read()
+	puk_sign_f.close()
+
+	tmp = open(TMP_FILE, 'w')
+	tmp.write(content)
+	tmp.close()
+
+	content_cp = ConfigParser()
+	content_cp.read(TMP_FILE)
+
+	decoded_content = pub_k.check_signature(content_cp[name][OPT_S_SIGN])
+	tmp = open(TMP_FILE, 'w')
+	tmp.write(decoded_content)
+	tmp.close()
+
+	puk_cp = ConfigParser()
+	puk_cp.read(TMP_FILE)
+	os.remove(TMP_FILE)
+
+	check_config(puk_cp, STRCT_PUB_KEY)
+	return puk_cp
