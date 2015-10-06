@@ -4,8 +4,6 @@ import os
 import rsa
 from configparser import ConfigParser
 
-TMP_FILE = "tmp.txt"
-
 #########
 # ROLES #
 #########
@@ -59,6 +57,12 @@ FILE_SELLER_DB = "seller.db"
 FILE_BANK_DB = "bank.db"
 EXT_INVOICE = ".inv"
 EXT_CHEQUE = ".chq"
+
+#########
+# Other #
+#########
+TMP_FILE = "tmp.txt"
+BANK_DB_DELIM = ";"
 
 #################################################################
 # Every structure of files open with ConfigParser must put here #

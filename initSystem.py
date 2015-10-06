@@ -82,6 +82,12 @@ if __name__ == "__main__":
 		# Signing the customer's key with the bank private key
 		key_fname = os.path.join(directory, tools.FILE_PUB_KEY)
 		sign_key(rsa_bank, key_fname, directory)
+		# Copy of the signature in the customer's directory of the bank
+		sign_f = os.path.join(tools.DIR_CUSTOMERS,
+							  customer,
+							  tools.FILE_PUB_SIGN)
+		dest = os.path.join(tools.DIR_BANK, customer, tools.FILE_PUB_SIGN)
+		shutil.copyfile(sign_f, dest)
 
 		directory = os.path.join(directory, tools.DIR_CHQ_ISSUED)
 		os.mkdir(directory)
@@ -98,6 +104,12 @@ if __name__ == "__main__":
 	seller_pub_k = os.path.join(tools.DIR_SELLER, tools.FILE_PUB_KEY)
 	dest = os.path.join(tools.DIR_BANK, tools.DIR_SELLER)
 	shutil.copy(seller_pub_k, dest)
+	k_fname = os.path.join(tools.DIR_SELLER, tools.FILE_PUB_KEY)
+	sign_key(rsa_bank, k_fname, dest)
+	sign_f = os.path.join(tools.DIR_SELLER,
+						  tools.FILE_PUB_SIGN)
+	dest = os.path.join(tools.DIR_BANK, tools.DIR_SELLER, tools.FILE_PUB_SIGN)
+	shutil.copyfile(sign_f, dest)
 
 	sign_key(rsa_bank,seller_pub_k, tools.DIR_SELLER)
 	print(DONE)
