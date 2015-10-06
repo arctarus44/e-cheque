@@ -62,7 +62,6 @@ EXT_CHEQUE = ".chq"
 # Other #
 #########
 TMP_FILE = "tmp.txt"
-BANK_DB_DELIM = ";"
 
 #################################################################
 # Every structure of files open with ConfigParser must put here #
