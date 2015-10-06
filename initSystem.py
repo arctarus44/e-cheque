@@ -95,23 +95,31 @@ if __name__ == "__main__":
 
 	#Creation of the seller
 	print("Creation of the Seller ", end="", flush=True)
+
+	# Creation of the seller's directory
 	os.mkdir(tools.DIR_SELLER)
+	os.mkdir(os.path.join(tools.DIR_BANK, tools.DIR_SELLER))
+
+	# Generation of seller's keys
 	keys = RSA.generate_keys(key_size=1024)
 	RSA.store_key(tools.DIR_SELLER, keys[RSA.private], keys[RSA.public])
 
-	os.mkdir(os.path.join(tools.DIR_BANK, tools.DIR_SELLER))
+	# Creation of the "bank account"
 	os.mkdir(os.path.join(tools.DIR_SELLER, tools.DIR_INVOICE))
+
+	# Copy the seller key to the "bank account"
 	seller_pub_k = os.path.join(tools.DIR_SELLER, tools.FILE_PUB_KEY)
 	dest = os.path.join(tools.DIR_BANK, tools.DIR_SELLER)
 	shutil.copy(seller_pub_k, dest)
-	k_fname = os.path.join(tools.DIR_SELLER, tools.FILE_PUB_KEY)
-	sign_key(rsa_bank, k_fname, dest)
+
+	# Sign the seller's public key
+	sign_key(rsa_bank, seller_pub_k, tools.DIR_SELLER)
+
+	# and copy it to his "bank account"
 	sign_f = os.path.join(tools.DIR_SELLER,
 						  tools.FILE_PUB_SIGN)
 	dest = os.path.join(tools.DIR_BANK, tools.DIR_SELLER, tools.FILE_PUB_SIGN)
 	shutil.copyfile(sign_f, dest)
-
-	sign_key(rsa_bank,seller_pub_k, tools.DIR_SELLER)
 	print(DONE)
 
 	print("Creation of the databases ", end="", flush=True)

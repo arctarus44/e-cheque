@@ -36,7 +36,7 @@ def decode_sign(sign, drawee):
 
 	# Parse the decoded cheque and check his structure
 	decoded_cheque = ConfigParser()
-	decoded_cheque.read(TMP_FILE)
+	decoded_cheque.read(tools.TMP_FILE)
 	tools.check_config(decoded_cheque, tools.STRCT_CHEQUE)
 	return decoded_cheque
 
@@ -58,7 +58,7 @@ if __name__ == "__main__":
 		print(NO_INVOICE.format(buyer, transac_id), file=sys.stderr)
 		exit(1)
 
-	with open(TMP_FILE, 'w') as cheque_f:
+	with open(tools.TMP_FILE, 'w') as cheque_f:
 		cheque_cp.write(cheque_f)
 
 	pri_f = ConfigParser()
@@ -67,8 +67,11 @@ if __name__ == "__main__":
 	pri_k = RSA(int(pri_f[tools.SCT_K_KEY][tools.OPT_K_N]),
 				d=int(pri_f[tools.SCT_K_KEY][tools.OPT_K_D]))
 
+	with open(tools.TMP_FILE, 'w') as f:
+		sign_cp.write(f)
 	cheque_f = open(TMP_FILE, 'r')
 	content = cheque_f.read()
+	os.remove(tools.TMP_FILE)
 
 	content_signed = pri_k.sign(content)
 
