@@ -52,7 +52,7 @@ if __name__ == "__main__":
 	print("Creation of the Bank ", end="",flush=True)
 
 	os.mkdir(tools.DIR_BANK)
-	keys = RSA.generate_keys()#key_size=4096)
+	keys = RSA.generate_keys()
 	RSA.store_key(tools.DIR_BANK, keys[RSA.private], keys[RSA.public])
 	print(DONE)
 
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 		os.mkdir(directory)
 
 		# Generation of customer's keys
-		keys = RSA.generate_keys(key_size=1024)
+		keys = RSA.generate_keys()
 		RSA.store_key(directory, keys[RSA.private], keys[RSA.public])
 
 		# Adding the customer's public key in the bank directory
@@ -101,7 +101,7 @@ if __name__ == "__main__":
 	os.mkdir(os.path.join(tools.DIR_BANK, tools.DIR_SELLER))
 
 	# Generation of seller's keys
-	keys = RSA.generate_keys(key_size=1024)
+	keys = RSA.generate_keys()
 	RSA.store_key(tools.DIR_SELLER, keys[RSA.private], keys[RSA.public])
 
 	# Creation of the "bank account"

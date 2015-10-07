@@ -42,7 +42,6 @@ SCT_SD_NOT_PAY = "Not_pay_in"
 # Signature file
 OPT_S_SIGN = "Signature"
 
-
 #############################################
 # Every parts of path name must be put here #
 #############################################
@@ -69,7 +68,7 @@ TMP_FILE = "tmp.txt"
 #################
 DRAWEE_SIGN_ERROR = "An error occured during the decoding the drawee signature. The signature might be incorrect"
 SELLER_SIGN_ERROR = "An error occured during the decoding the seller signature. The signature might be incorrect"
-SELLER_SIGN_ERROR = "An error occured during the decoding the signature. The signature might be incorrect"
+SIGN_ERROR = "An error occured during the decoding the signature. The signature or the key might be incorrect"
 
 #################################################################
 # Every structure of files open with ConfigParser must put here #
@@ -146,7 +145,7 @@ def decode_public_key(pk_signed, public_key, name):
 	try:
 		content_cp.read(TMP_FILE)
 	except ParsingError:
-		print(tools.SIGN_ERROR, file=sys.stderr)
+		print(SIGN_ERROR, file=sys.stderr)
 		exit(1)
 
 
@@ -156,7 +155,11 @@ def decode_public_key(pk_signed, public_key, name):
 	tmp.close()
 
 	puk_cp = ConfigParser()
-	puk_cp.read(TMP_FILE)
+	try:
+		puk_cp.read(TMP_FILE)
+	except ParsingError:
+		print(SIGN_ERROR, file=sys.stderr)
+		exit(1)
 	os.remove(TMP_FILE)
 
 	check_config(puk_cp, STRCT_PUB_KEY)
